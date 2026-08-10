@@ -5,8 +5,9 @@ st.title("🧭PathNav")
 
 from utils.theme import inject_css
 from utils.session_state import init_session_state
-
+from utils.api_client import APIClient
 init_session_state()
+api_client = APIClient()
 inject_css()
 
 with st.sidebar:
