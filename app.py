@@ -4,7 +4,9 @@ st.set_page_config(page_title="PathNav",page_icon="🧭",layout="wide")
 st.title("🧭PathNav")
 
 from utils.theme import inject_css
+from utils.session_state import init_session_state
 
+init_session_state()
 inject_css()
 
 with st.sidebar:
