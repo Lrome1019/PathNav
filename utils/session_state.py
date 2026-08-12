@@ -6,18 +6,22 @@ def init_session_state() -> None:
         safely assume these keys already exist. """
 
 defaults = {
-       "courses": [],
-        "scan_job_status": None,
+    "courses": [],
+    "scan_job_status": None,
 
-        #--- Policy QA tab ---
-        "policy_qa_question": "",
-        "policy_answer": None,
-        "policy_documents": [],
+    #--- Policy QA tab ---
+    "policy_question": "",
+    "policy_answer": None,
+    "policy_documents": [],
 
-        "generated_email": None,
+    #--- Table of Contents ---
+    "selected_course_id": None,
 
-        ## Aamr Build from here ---
-    }
+    #--- Email Draft tab ---
+    "generated_email": None,
+
+    ## Aamr Build from here ---
+}
 
 for key, value in defaults.items():
     st.session_state[key] = value
