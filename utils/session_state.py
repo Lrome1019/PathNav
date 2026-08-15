@@ -5,23 +5,25 @@ def init_session_state() -> None:
         Called once from app.py, before any tab renders, so every tab can
         safely assume these keys already exist. """
 
-defaults = {
-    "courses": [],
-    "scan_job_status": None,
+    defaults = {
+        "courses": [],
+        "scan_job_status": None,
 
-    #--- Policy QA tab ---
-    "policy_question": "",
-    "policy_answer": None,
-    "policy_documents": [],
+        #--- Policy QA tab ---
+        "policy_question": "",
+        "policy_answer": None,
+        "policy_documents": [],
 
-    #--- Table of Contents ---
-    "selected_course_id": None,
+        #--- Table of Contents ---
+        "selected_course_id": None,
 
-    #--- Email Draft tab ---
-    "generated_email": None,
+        #--- Email Draft tab ---
+        "generated_email": None,
 
-    ## Aamr Build from here ---
-}
+        #--- Navigator tab ---
+        "nav_situation": None,
+        "nav_step_index": 0,
+    }
 
-for key, value in defaults.items():
-    st.session_state[key] = value
+    for key, value in defaults.items():
+        st.session_state.setdefault(key, value)
