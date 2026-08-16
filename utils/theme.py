@@ -2,6 +2,7 @@ import streamlit as st
 
 NAVY = "#001f3f"
 TEAL = "#004d40"
+TEAL_DARK = "#00332b"
 CREAM = "#f5f5f5"
 
 def inject_css() -> None:
