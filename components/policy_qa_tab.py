@@ -43,9 +43,17 @@ def render(api_client) -> None:
     elif submit_clicked:
         st.warning("Please enter a question before submitting.")
 
-    answer = st.session_state.policy_answer
-    if answer:
+    answer_payload = st.session_state.policy_answer
+    if answer_payload:
+        if isinstance(answer_payload, dict):
+            answer = answer_payload.get("answer", "")
+            source_section = answer_payload.get("source_section")
+        else:
+            answer = answer_payload
+            source_section = None
         st.markdown(f'<div class="response-box">{answer}</div>', unsafe_allow_html=True)
+        if source_section:
+            st.caption(f"Drawn from POLICY_CONTEXT section: **{source_section}**")
     else:
         st.markdown(
             '<div class="response-box">Your answer will appear here once you submit a question.</div>',

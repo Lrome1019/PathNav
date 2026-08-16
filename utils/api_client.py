@@ -5,15 +5,34 @@ import re
 import uuid
 from typing import Any
 
-from anthropic import AI_PROMPT, Anthropic, HUMAN_PROMPT
+from anthropic import Anthropic
 from pypdf import PdfReader
 
-POLICY_CONTEXT = (
-    "PathNav helps students understand disability accommodations under the ADA "
-    "and Section 504. Provide clear, campus-relevant guidance where possible, "
-    "but do not offer legal advice. If specific university policy is not "
-    "available, answer based on general U.S. ADA and Section 504 disability "
-    "accommodation principles."
+POLICY_SECTIONS = {
+    "ADA": (
+        "The Americans with Disabilities Act (ADA) requires colleges and universities "
+        "to provide reasonable accommodations so students with disabilities have equal "
+        "access to academic programs."
+    ),
+    "Section 504": (
+        "Section 504 of the Rehabilitation Act prohibits disability discrimination in "
+        "federally funded programs, including most U.S. colleges and universities."
+    ),
+    "Campus guidance": (
+        "PathNav helps students understand disability accommodations under the ADA "
+        "and Section 504. Provide clear, campus-relevant guidance where possible. "
+        "If specific university policy is not available, answer based on general "
+        "U.S. ADA and Section 504 disability accommodation principles, and encourage "
+        "the student to consult their campus disability services office."
+    ),
+    "Legal disclaimer": (
+        "Do not offer legal advice. This is general information, not a determination "
+        "of rights in a specific case."
+    ),
+}
+
+POLICY_CONTEXT = "\n\n".join(
+    f"{name}: {text}" for name, text in POLICY_SECTIONS.items()
 )
 
 COURSE_EXTRACTION_INSTRUCTIONS = (
@@ -36,11 +55,32 @@ class APIClient:
     """
 
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
-        self.model = model or os.getenv("ANTHROPIC_MODEL", "claude-3.5")
+        self.api_key = api_key or self._resolve_api_key()
+        self.model = model or os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
         self.client = Anthropic(api_key=self.api_key) if self.api_key else None
         self._scan_jobs: dict[str, dict[str, str]] = {}
         self._courses: list[dict[str, Any]] = []
+
+    @staticmethod
+    def _resolve_api_key() -> str | None:
+        try:
+            import streamlit as st
+
+            secret = st.secrets["ANTHROPIC_API_KEY"]
+            if secret:
+                return str(secret)
+        except Exception:
+            pass
+        return os.getenv("ANTHROPIC_API_KEY")
+
+    @staticmethod
+    def _show_friendly_error(message: str) -> None:
+        try:
+            import streamlit as st
+
+            st.error(message)
+        except Exception:
+            pass
 
     def _ensure_client(self) -> Anthropic:
         if not self.client:
@@ -49,14 +89,32 @@ class APIClient:
             )
         return self.client
 
-    def _call_claude(self, prompt: str, max_tokens: int = 1200) -> str:
-        client = self._ensure_client()
-        completion = client.completions.create(
-            model=self.model,
-            prompt=f"{HUMAN_PROMPT}{prompt}{AI_PROMPT}",
-            max_tokens_to_sample=max_tokens,
-        )
-        return getattr(completion, "completion", completion.get("completion", ""))
+    def _call_claude(
+        self,
+        prompt: str,
+        max_tokens: int = 1200,
+        system: str = "You are a helpful assistant for PathNav.",
+    ) -> str:
+        try:
+            client = self._ensure_client()
+            resp = client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                system=system,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return resp.content[0].text
+        except RuntimeError:
+            self._show_friendly_error(
+                "PathNav couldn't reach Claude because no API key is configured. "
+                "Add ANTHROPIC_API_KEY in Streamlit secrets or your environment, then try again."
+            )
+            return ""
+        except Exception:
+            self._show_friendly_error(
+                "PathNav couldn't reach Claude right now. Please try again in a moment."
+            )
+            return ""
 
     def _extract_text_from_pdf(self, file_bytes: bytes) -> str:
         try:
@@ -73,7 +131,9 @@ class APIClient:
         payload = match.group(0)
         return json.loads(payload)
 
-    def _extract_course_from_syllabus(self, text: str, filename: str) -> dict[str, Any]:
+    def _extract_course_from_syllabus(
+        self, text: str, filename: str
+    ) -> dict[str, Any] | None:
         prompt = (
             f"You are an assistant that extracts course information from syllabus text. "
             f"The syllabus filename is {filename}. "
@@ -81,6 +141,8 @@ class APIClient:
             f"{COURSE_EXTRACTION_INSTRUCTIONS}"
         )
         response = self._call_claude(prompt, max_tokens=1000)
+        if not response:
+            return None
         try:
             course = self._parse_json_response(response)
         except Exception:
@@ -116,6 +178,8 @@ class APIClient:
             return {"status": "failed", "error": "unable to parse PDF text"}
 
         course = self._extract_course_from_syllabus(job["text"], job["filename"])
+        if not course:
+            return {"status": "failed", "error": "llm_error"}
         return {"status": "complete", "course": course}
 
     def submit_manual_course(self, course_data: dict) -> dict:
@@ -169,15 +233,47 @@ class APIClient:
         )
         return self._call_claude(prompt, max_tokens=800)
 
-    def get_policy_answer(self, question: str) -> str:
-        """Returns a Claude-generated policy answer for the given question."""
+    def get_policy_answer(self, question: str) -> dict[str, str] | None:
+        """Returns a Claude-generated policy answer and the POLICY_CONTEXT section used."""
+        section_names = ", ".join(POLICY_SECTIONS)
         prompt = (
-            f"You are an expert on U.S. disability accommodation policy, including ADA "
-            f"and Section 504. Answer the student's question clearly and helpfully. "
-            f"Base your response on general policy guidance and encourage the user to "
-            f"consult their campus disability services office for school-specific details.\n\n"
-            f"Policy context:\n{POLICY_CONTEXT}\n\n"
             f"Question: {question}\n\n"
-            "Provide a plain-language answer and avoid giving legal advice."
+            "Provide a plain-language answer and avoid giving legal advice. "
+            "Name the single POLICY_CONTEXT section you drew from most. "
+            "Return only valid JSON with keys answer and source_section. "
+            f"source_section must be one of: {section_names}."
         )
-        return self._call_claude(prompt, max_tokens=600)
+        response = self._call_claude(
+            prompt,
+            max_tokens=600,
+            system=(
+                "You are an expert on U.S. disability accommodation policy, including "
+                "ADA and Section 504. Use only the following policy context and cite "
+                "the section you used.\n\n"
+                f"{POLICY_CONTEXT}"
+            ),
+        )
+        if not response:
+            return None
+        try:
+            payload = self._parse_json_response(response)
+            answer = str(payload.get("answer", "")).strip()
+            source = str(payload.get("source_section", "")).strip()
+            if source not in POLICY_SECTIONS:
+                source = next(
+                    (
+                        name
+                        for name in POLICY_SECTIONS
+                        if name.lower() == source.lower()
+                    ),
+                    source or "Campus guidance",
+                )
+            return {
+                "answer": answer or response,
+                "source_section": source,
+            }
+        except Exception:
+            return {
+                "answer": response,
+                "source_section": "Campus guidance",
+            }
