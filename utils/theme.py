@@ -21,6 +21,12 @@ def inject_css() -> None:
         color: {CREAM};
         margin-top: 0.5rem;
         opacity: 0.8;
-        }} 
+        }}
+        /* Increase tab font size */
+        button[data-baseweb="tab"] {{
+            font-size: 18px;
+            font-weight: 600;
+            padding: 12px 20px;
+        }}
         </style>
     """, unsafe_allow_html=True)

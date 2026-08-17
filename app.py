@@ -1,7 +1,7 @@
 import streamlit as st
 
-st.set_page_config(page_title="PathNav", page_icon="🧭", layout="wide")
-st.title("🧭PathNav")
+st.set_page_config(page_title="PathNav", page_icon=":compass:", layout="wide")
+st.title("PathNav")
 
 from components import (
     email_draft_tab,
