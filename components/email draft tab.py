@@ -116,11 +116,11 @@ def _render_copy_and_mailto(email_text: str) -> None:
         <button id="copy-email-btn" style="
             background-color: {TEAL}; color: white; border: none; border-radius: 8px;
             font-weight: 600; padding: 0.5rem 1.2rem; cursor: pointer; margin-top: 0.5rem;
-        ">📋 Copy to Clipboard</button>
+        ">Copy to Clipboard</button>
         <button id="mailto-btn" style="
             background-color: {TEAL_DARK}; color: white; border: none; border-radius: 8px;
             font-weight: 600; padding: 0.5rem 1.2rem; cursor: pointer; margin-top: 0.5rem; margin-left: 8px;
-        ">✉️ Open in Email</button>
+        ">Open in Email</button>
         <span id="copy-status" style="margin-left: 10px; font-family: sans-serif; color: {TEAL_DARK};"></span>
         <script>
             document.getElementById("copy-email-btn").addEventListener("click", () => {{

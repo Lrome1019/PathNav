@@ -89,13 +89,13 @@ def render(api_client) -> None:
 
         confirm_col, dismiss_col = st.columns(2)
         with confirm_col:
-            if st.button("✅ Confirm / Save Edit", key=f"confirm_accommodation_{course['id']}", use_container_width=True):
+            if st.button("Confirm / Save Edit", key=f"confirm_accommodation_{course['id']}", use_container_width=True):
                 api_client.update_accommodation(course["id"], edited, dismissed=False)
                 course["accommodation_excerpt"] = edited
                 course["accommodation_status"] = "found"
                 st.success("Saved.")
         with dismiss_col:
-            if st.button("✖ Dismiss", key=f"dismiss_accommodation_{course['id']}", use_container_width=True):
+            if st.button("Dismiss", key=f"dismiss_accommodation_{course['id']}", use_container_width=True):
                 api_client.update_accommodation(course["id"], None, dismissed=True)
                 course["accommodation_excerpt"] = None
                 course["accommodation_status"] = "dismissed"
