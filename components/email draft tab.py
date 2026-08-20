@@ -15,7 +15,12 @@ import json
 import streamlit as st
 import streamlit.components.v1 as components
 
-from utils.theme import TEAL, TEAL_DARK
+from utils.theme import TEAL
+
+try:
+    from utils.theme import TEAL_DARK
+except ImportError:
+    TEAL_DARK = TEAL
 
 
 def render(api_client) -> None:
