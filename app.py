@@ -1,6 +1,10 @@
+import os
+
 import streamlit as st
 
-st.set_page_config(page_title="PathNav", page_icon=":compass:", layout="wide")
+_ICON_PATH = os.path.join(os.path.dirname(__file__), "assets", "icon.png")
+
+st.set_page_config(page_title="PathNav", page_icon=_ICON_PATH, layout="wide")
 st.title("PathNav")
 
 from utils.theme import inject_css
