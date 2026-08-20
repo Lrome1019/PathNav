@@ -2,8 +2,8 @@
 # Pins the app to a light theme with our navy/teal palette so text stays
 # readable regardless of the visitor's OS/browser dark-mode setting.
 base = "light"
-primaryColor = "#2CA6A4"          # teal — buttons, active elements
+primaryColor = "#004d40"          # deep teal (matches header/theme.py) — buttons, active tab, focus rings; 8.5:1+ contrast
 backgroundColor = "#F7F9FB"       # cream — main page background
-secondaryBackgroundColor = "#FFFFFF"  # white — sidebar/widget backgrounds
+secondaryBackgroundColor = "#EAF0EF"  # light teal-tinted grey — sidebar/widget backgrounds, distinct from main bg
 textColor = "#1A1A1A"             # near-black — body text
 font = "sans serif"
