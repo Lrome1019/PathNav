@@ -25,7 +25,7 @@ with st.sidebar:
         "academic journey, accommodations, ask policy questions, get "
         "step-by-step guidance, and draft accommodation emails, all in one place."
     )
-    st.markdown("Made by the [PathNav team](https://pathnav.app) at the.")
+    st.markdown("Built by the [PathNav team](https://github.com/Lrome1019/PathNav) for the Stellic Pathfinders Challenge.")
 
 scanner, toc, email_draft, policy_qa, navigator = st.tabs(
     [

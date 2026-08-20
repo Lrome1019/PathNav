@@ -13,8 +13,8 @@ def inject_css() -> None:
             }}
              .app-header {{
              background-color: {NAVY};
-             padding: 1rem; 2rem;
-             border radius: 0 0 10px 10px;
+             padding: 1rem 2rem;
+             border-radius: 0 0 10px 10px;
              margin-bottom: 1.5rem;
         }}
         .app-header p {{
