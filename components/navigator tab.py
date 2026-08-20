@@ -15,7 +15,9 @@ Email Draft tab, add richer step content like links/checklists.)
 
 import streamlit as st
 
-from utils.sample_data import NAVIGATOR_GUIDES
+from utils.loader import load
+
+NAVIGATOR_GUIDES = load("utils/sample data.py").NAVIGATOR_GUIDES
 
 
 def render() -> None:

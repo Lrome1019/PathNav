@@ -4,8 +4,11 @@ st.set_page_config(page_title="PathNav",page_icon="🧭",layout="wide")
 st.title("🧭PathNav")
 
 from utils.theme import inject_css
-from utils.session_state import init_session_state
-from utils.api_client import APIClient
+from utils.loader import load
+
+init_session_state = load("utils/session state.py").init_session_state
+APIClient = load("utils/api client.py").APIClient
+
 init_session_state()
 api_client = APIClient()
 inject_css()

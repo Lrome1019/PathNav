@@ -12,7 +12,9 @@ Owner: Laura (Frontend 1)
 
 import streamlit as st
 
-from utils.sample_data import EXAMPLE_QUESTIONS
+from utils.loader import load
+
+EXAMPLE_QUESTIONS = load("utils/sample data.py").EXAMPLE_QUESTIONS
 
 
 def render(api_client) -> None:

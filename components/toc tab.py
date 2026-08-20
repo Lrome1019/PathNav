@@ -16,7 +16,9 @@ the course list as cards instead of a selectbox.)
 
 import streamlit as st
 
-from utils.sample_data import SAMPLE_COURSES
+from utils.loader import load
+
+SAMPLE_COURSES = load("utils/sample data.py").SAMPLE_COURSES
 
 
 def render(api_client) -> None:
