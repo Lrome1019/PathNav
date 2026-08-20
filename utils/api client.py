@@ -103,7 +103,10 @@ class APIClient:
                 system=system,
                 messages=[{"role": "user", "content": prompt}],
             )
-            return resp.content[0].text
+            for block in resp.content:
+                if getattr(block, "type", None) == "text":
+                    return block.text
+            return ""
         except RuntimeError:
             self._show_friendly_error(
                 "PathNav couldn't reach Claude because no API key is configured. "
